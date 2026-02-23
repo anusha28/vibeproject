@@ -1,5 +1,6 @@
 import { Search, MapPin, Users, Clock, ShieldCheck, Compass, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import SearchBar from "@/components/SearchBar";
 
 export default function Home() {
   return (
@@ -38,19 +39,16 @@ export default function Home() {
             Explore public school after-care, homeschool co-ops, and student-led clubs in your local area.
           </p>
           
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative group">
-            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-            </div>
-            <input 
-              type="text" 
-              className="w-full bg-white border-2 border-slate-200 text-slate-900 rounded-full py-4 pl-14 pr-36 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/10 transition-all text-lg shadow-sm"
-              placeholder="Type your school name or ZIP code..."
-            />
-            <Link href="/school/lincoln-high-school" className="absolute inset-y-2 right-2 bg-indigo-600 text-white px-6 py-2 rounded-full font-medium hover:bg-indigo-700 transition-colors flex items-center">
-              Search
-            </Link>
+          {/* Functional Search Bar Component */}
+          <SearchBar />
+
+          {/* Quick Filters */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+            {['🏫 Public Schools', '🏡 Homeschool Groups', '⚽ Sports', '🧬 STEM', '🎨 Arts'].map((tag) => (
+              <button key={tag} className="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-sm hover:shadow">
+                {tag}
+              </button>
+            ))}
           </div>
         </section>
 
@@ -91,7 +89,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">Popular in your area</h2>
             
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Card 1 */}
               <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer">
                 <div className="h-48 bg-slate-200 relative overflow-hidden">
@@ -111,6 +109,11 @@ export default function Home() {
                     <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> Tue 4 PM</div>
                   </div>
                   <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-indigo-100"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-blue-100"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+12</div>
+                    </div>
                     <button className="text-indigo-600 font-bold text-sm group-hover:text-indigo-700 flex items-center gap-1">
                       View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
@@ -137,7 +140,43 @@ export default function Home() {
                     <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> Thu 10 AM</div>
                   </div>
                   <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-100"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-teal-100"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+8</div>
+                    </div>
                     <button className="text-emerald-600 font-bold text-sm group-hover:text-emerald-700 flex items-center gap-1">
+                      View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer md:hidden lg:flex">
+                <div className="h-48 bg-slate-200 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-500 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                    Public
+                  </div>
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Creative Arts Studio</h3>
+                  <div className="flex items-center text-slate-500 text-sm mb-5 gap-1.5">
+                    <MapPin className="w-4 h-4 text-rose-500" />
+                    <span>Washington Middle School</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-slate-600 mb-8">
+                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Users className="w-4 h-4 text-slate-400"/> Ages 11-14</div>
+                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> Wed 3:30 PM</div>
+                  </div>
+                  <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-rose-100"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-orange-100"></div>
+                      <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+24</div>
+                    </div>
+                    <button className="text-rose-600 font-bold text-sm group-hover:text-rose-700 flex items-center gap-1">
                       View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
