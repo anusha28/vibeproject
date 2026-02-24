@@ -65,7 +65,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ f
             <span className="font-bold text-xl tracking-tight">ClubScout</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="#" className="text-sm font-medium text-slate-600 hover:text-slate-900 hidden sm:block">
+            <Link href="/add-club" className="text-sm font-medium text-slate-600 hover:text-slate-900 hidden sm:block">
               Add a Club
             </Link>
             <Link href="#" className="text-sm font-medium bg-indigo-600 text-white px-5 py-2.5 rounded-full hover:bg-indigo-700 transition">
@@ -107,37 +107,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ f
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-20 bg-white border-y border-slate-200 mt-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
-            </div>
-            <div className="grid md:grid-cols-3 gap-12 text-center max-w-5xl mx-auto">
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 text-indigo-600 shadow-sm">
-                  <Search className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">1. Search your school</h3>
-                <p className="text-slate-600 leading-relaxed">Enter your school name or zip code to see what's available nearby.</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 text-indigo-600 shadow-sm">
-                  <ShieldCheck className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">2. Browse verified clubs</h3>
-                <p className="text-slate-600 leading-relaxed">Filter by age, interest, and schedule to find the perfect fit.</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 text-indigo-600 shadow-sm">
-                  <Users className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900">3. Connect & Join</h3>
-                <p className="text-slate-600 leading-relaxed">Reach out to organizers directly and join your new community.</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Dynamic Data Grid */}
         <section className="py-24 bg-slate-50">
