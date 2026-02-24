@@ -1,8 +1,58 @@
 import { Search, MapPin, Users, Clock, ShieldCheck, Compass, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
+import { supabaseServer } from "@/lib/supabase-server";
 
-export default function Home() {
+const PILLAR_THEMES: Record<string, any> = {
+  stem: { text: "text-indigo-600", gradient: "from-indigo-500 to-blue-600" },
+  art: { text: "text-rose-600", gradient: "from-rose-400 to-orange-500" },
+  drama: { text: "text-purple-600", gradient: "from-purple-500 to-fuchsia-600" },
+  sport: { text: "text-emerald-600", gradient: "from-emerald-400 to-teal-600" },
+  other: { text: "text-slate-600", gradient: "from-slate-400 to-slate-600" }
+};
+
+const filters = [
+  { id: 'all', label: '🌟 All' },
+  { id: 'schools', label: '🏫 Public Schools' },
+  { id: 'sport', label: '⚽ Sports' },
+  { id: 'stem', label: '🧬 STEM' },
+  { id: 'art', label: '🎨 Arts' }
+];
+
+export const dynamic = 'force-dynamic';
+
+export default async function Home({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
+  const resolvedParams = await searchParams;
+  const activeFilter = resolvedParams.filter || 'all';
+
+  let displayData: any[] = [];
+  let displayType = 'clubs';
+
+  // Fetch real data dynamically based on the clicked filter
+  if (activeFilter === 'schools') {
+    displayType = 'schools';
+    const { data } = await supabaseServer
+      .from('schools')
+      .select('*')
+      // Showing Bay Area schools to make the landing page relevant to our dataset
+      .in('city', ['San Francisco', 'Oakland', 'San Jose'])
+      .limit(6);
+    displayData = data || [];
+  } else {
+    displayType = 'clubs';
+    let query = supabaseServer
+      .from('clubs')
+      .select('*, schools(name, city, state)')
+      .order('members_count', { ascending: false })
+      .limit(6);
+      
+    if (activeFilter !== 'all') {
+      query = query.eq('pillar', activeFilter);
+    }
+    const { data } = await query;
+    displayData = data || [];
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Navigation */}
@@ -44,10 +94,15 @@ export default function Home() {
 
           {/* Quick Filters */}
           <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-            {['🏫 Public Schools', '🏡 Homeschool Groups', '⚽ Sports', '🧬 STEM', '🎨 Arts'].map((tag) => (
-              <button key={tag} className="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-sm hover:shadow">
-                {tag}
-              </button>
+            {filters.map((f) => (
+              <Link 
+                key={f.id} 
+                href={`/?filter=${f.id}`} 
+                scroll={false} 
+                className={`px-4 py-2 bg-white border ${activeFilter === f.id ? 'border-indigo-600 text-indigo-600 shadow-md' : 'border-slate-200 text-slate-600'} rounded-full text-sm font-medium hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-sm hover:shadow`}
+              >
+                {f.label}
+              </Link>
             ))}
           </div>
         </section>
@@ -84,111 +139,83 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Featured Clubs Grid */}
+        {/* Dynamic Data Grid */}
         <section className="py-24 bg-slate-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">Popular in your area</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">
+              {activeFilter === 'schools' ? 'Popular Public Schools' : 'Popular Clubs in your area'}
+            </h2>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Card 1 */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer">
-                <div className="h-48 bg-slate-200 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                    Public
-                  </div>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Robotics & Coding Club</h3>
-                  <div className="flex items-center text-slate-500 text-sm mb-5 gap-1.5">
-                    <MapPin className="w-4 h-4 text-indigo-500" />
-                    <span>Lincoln High School</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-slate-600 mb-8">
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Users className="w-4 h-4 text-slate-400"/> Ages 10-14</div>
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> Tue 4 PM</div>
-                  </div>
-                  <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
-                    <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-indigo-100"></div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-blue-100"></div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+12</div>
+              {displayType === 'clubs' && displayData.map((club) => {
+                const theme = PILLAR_THEMES[club.pillar] || PILLAR_THEMES.other;
+                const school = club.schools as any;
+                return (
+                  <Link key={club.id} href={`/club/${club.id}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer block focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
+                    <div className="h-48 relative overflow-hidden">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} opacity-90 group-hover:scale-105 transition-transform duration-500`}></div>
+                      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                        {club.type || "Club"}
+                      </div>
                     </div>
-                    <button className="text-indigo-600 font-bold text-sm group-hover:text-indigo-700 flex items-center gap-1">
-                      View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2">{club.name}</h3>
+                      <div className="flex items-center text-slate-500 text-sm mb-5 gap-1.5">
+                        <MapPin className="w-4 h-4 text-indigo-500" />
+                        <span>{school?.name} ({school?.city})</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-slate-600 mb-8">
+                        <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Users className="w-4 h-4 text-slate-400"/> {club.age_range || 'All ages'}</div>
+                        <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> {club.meeting_time || 'TBD'}</div>
+                      </div>
+                      <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
+                        <div className="flex -space-x-2">
+                          <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-100"></div>
+                          <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
+                          <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+{club.members_count || 0}</div>
+                        </div>
+                        <div className={`${theme.text} font-bold text-sm flex items-center gap-1 group-hover:opacity-80`}>
+                          View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
 
-              {/* Card 2 */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer">
-                <div className="h-48 bg-slate-200 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-600 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                    Homeschool
-                  </div>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Outdoor Explorers Co-op</h3>
-                  <div className="flex items-center text-slate-500 text-sm mb-5 gap-1.5">
-                    <MapPin className="w-4 h-4 text-emerald-500" />
-                    <span>Westside Community Park</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-slate-600 mb-8">
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Users className="w-4 h-4 text-slate-400"/> Ages 6-10</div>
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> Thu 10 AM</div>
-                  </div>
-                  <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
-                    <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-100"></div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-teal-100"></div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+8</div>
+              {displayType === 'schools' && displayData.map((school) => (
+                <Link key={school.id} href={`/school/${school.slug}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer block focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
+                    <div className="h-48 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
+                      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                        {school.type || "Public"}
+                      </div>
                     </div>
-                    <button className="text-emerald-600 font-bold text-sm group-hover:text-emerald-700 flex items-center gap-1">
-                      View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer md:hidden lg:flex">
-                <div className="h-48 bg-slate-200 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-500 opacity-90 group-hover:scale-105 transition-transform duration-500"></div>
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                    Public
-                  </div>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Creative Arts Studio</h3>
-                  <div className="flex items-center text-slate-500 text-sm mb-5 gap-1.5">
-                    <MapPin className="w-4 h-4 text-rose-500" />
-                    <span>Washington Middle School</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-slate-600 mb-8">
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Users className="w-4 h-4 text-slate-400"/> Ages 11-14</div>
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-slate-400"/> Wed 3:30 PM</div>
-                  </div>
-                  <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
-                    <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-rose-100"></div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-orange-100"></div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+24</div>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2">{school.name}</h3>
+                      <div className="flex items-center text-slate-500 text-sm mb-5 gap-1.5">
+                        <MapPin className="w-4 h-4 text-indigo-500" />
+                        <span>{school.city}, {school.state}</span>
+                      </div>
+                      <p className="text-slate-600 text-sm mb-8 line-clamp-2">
+                        {school.address}
+                      </p>
+                      <div className="flex items-center justify-between pt-5 border-t border-slate-100 mt-auto">
+                        <div className="text-indigo-600 font-bold text-sm flex items-center gap-1 group-hover:opacity-80">
+                          View Directory <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
                     </div>
-                    <button className="text-rose-600 font-bold text-sm group-hover:text-rose-700 flex items-center gap-1">
-                      View Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                  </Link>
+              ))}
             </div>
             
-            <div className="text-center mt-16">
-              <button className="bg-white border-2 border-slate-200 text-slate-700 px-8 py-3 rounded-full font-bold hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-sm hover:shadow">
-                View All Clubs
-              </button>
-            </div>
+            {displayData.length === 0 && (
+              <div className="text-center py-12 text-slate-500">
+                No results found for this category yet.
+              </div>
+            )}
+            
           </div>
         </section>
 
