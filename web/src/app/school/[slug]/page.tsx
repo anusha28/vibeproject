@@ -14,6 +14,8 @@ const PILLAR_CONFIG = {
 
 type PillarKey = keyof typeof PILLAR_CONFIG;
 
+export const dynamic = 'force-dynamic';
+
 export default async function SchoolPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
@@ -126,7 +128,7 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pillar.clubs.map((club) => (
-                  <div key={club.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer">
+                  <Link key={club.id} href={`/club/${club.id}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all group flex flex-col cursor-pointer block focus:outline-none focus:ring-4 focus:ring-indigo-500/20">
                     <div className="h-32 relative overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${pillar.theme.gradient} opacity-90 group-hover:scale-105 transition-transform duration-500`}></div>
                       <div className="absolute top-4 right-4 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
@@ -149,12 +151,12 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
                           <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
                           <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-800 flex items-center justify-center text-xs font-bold text-white">+{club.members_count || 0}</div>
                         </div>
-                        <button className={`${pillar.theme.text} font-bold text-sm flex items-center gap-1 group-hover:opacity-80`}>
+                        <div className={`${pillar.theme.text} font-bold text-sm flex items-center gap-1 group-hover:opacity-80`}>
                           Details <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </section>
